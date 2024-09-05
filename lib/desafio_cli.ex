@@ -84,6 +84,8 @@ defmodule DesafioCli do
         end)
     end
 
+    IO.puts(num_of_transactions)
+
     IO.inspect(Agent.get(__MODULE__, fn state -> state.database end), label: "DATABASE")
     IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end), label: "TRANSACTIONS")
   end
@@ -100,6 +102,8 @@ defmodule DesafioCli do
           Map.put(state, :transactions, List.delete_at(state.transactions, -1))
         end)
     end
+
+    IO.puts(num_of_transactions)
 
     IO.inspect(Agent.get(__MODULE__, fn state -> state.database end), label: "DATABASE")
     IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end), label: "TRANSACTIONS")
