@@ -50,10 +50,8 @@ defmodule DesafioCli do
     num_of_transactions = Agent.get(__MODULE__, fn state -> state.transactions |> length() end)
     IO.puts(num_of_transactions)
 
-    IO.puts("DATABASE: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end))
-    IO.puts("TRANSACTIONS: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end))
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end), label: "DATABASE")
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end), label: "TRANSACTIONS")
   end
 
   def commit do
@@ -79,16 +77,15 @@ defmodule DesafioCli do
           Map.put(
             state,
             :transactions,
+            # merge the last transaction with the previous one
             List.delete_at(remaining_transactions, -1) ++
               [Map.merge(List.last(remaining_transactions), last_transaction)]
           )
         end)
     end
 
-    IO.puts("DATABASE: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end))
-    IO.puts("TRANSACTIONS: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end))
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end), label: "DATABASE")
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end), label: "TRANSACTIONS")
   end
 
   def rollback do
@@ -104,10 +101,8 @@ defmodule DesafioCli do
         end)
     end
 
-    IO.puts("DATABASE: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end))
-    IO.puts("TRANSACTIONS: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end))
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end), label: "DATABASE")
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end), label: "TRANSACTIONS")
   end
 
   defp parse_value(arg) do
@@ -146,18 +141,15 @@ defmodule DesafioCli do
 
     IO.puts(if exists == nil, do: "FALSE #{parsed_value}", else: "TRUE #{parsed_value}")
 
-    IO.puts("DATABASE: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end))
-    IO.puts("TRANSACTIONS: ")
-    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end))
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.database end), label: "DATABASE")
+    IO.inspect(Agent.get(__MODULE__, fn state -> state.transactions end), label: "TRANSACTIONS")
   end
 
   def get(key) do
     value = Map.get(get_database_with_transactions(), key, "NIL")
     IO.puts(value)
 
-    IO.puts("DATABASE WITH TRANSACTIONS: ")
-    IO.inspect(get_database_with_transactions())
+    IO.inspect(get_database_with_transactions(), label: "DATABASE WITH TRANSACTIONS")
   end
 
   def get_database_with_transactions do
