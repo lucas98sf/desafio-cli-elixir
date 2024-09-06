@@ -5,12 +5,10 @@ defmodule DesafioCliTest do
   @file_path "db_state.dat"
 
   setup do
-    # Ensure the state file is removed before each test
     on_exit(fn ->
       File.rm(@file_path)
     end)
 
-    # Start the Database GenServer manually
     {:ok, pid} = Database.start_link()
     {:ok, pid: pid}
   end
@@ -63,13 +61,10 @@ defmodule DesafioCliTest do
       DesafioCli.handle_command(["SET", "x", "1"], pid)
       DesafioCli.handle_command(["SET", "y", "2"], pid)
 
-      # Stop the Database GenServer to simulate shutting down the application
       :ok = GenServer.stop(pid)
 
-      # Start it again to simulate restarting the application
       {:ok, new_pid} = Database.start_link()
 
-      # Ensure the state persists after restarting
       assert {:ok, 1} = DesafioCli.handle_command(["GET", "x"], new_pid)
       assert {:ok, 2} = DesafioCli.handle_command(["GET", "y"], new_pid)
     end
@@ -78,14 +73,11 @@ defmodule DesafioCliTest do
       DesafioCli.handle_command(["SET", "x", "1"], pid)
       DesafioCli.handle_command(["SET", "y", "2"], pid)
 
-      # Remove the persistence file to simulate starting without previous state
       File.rm!(@file_path)
 
-      # Stop and restart the Database GenServer
       :ok = GenServer.stop(pid)
       {:ok, new_pid} = Database.start_link()
 
-      # After the restart, the state should be empty
       assert {:ok, "NIL"} = DesafioCli.handle_command(["GET", "x"], new_pid)
       assert {:ok, "NIL"} = DesafioCli.handle_command(["GET", "y"], new_pid)
     end

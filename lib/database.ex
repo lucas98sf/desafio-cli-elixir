@@ -50,12 +50,10 @@ defmodule Database do
       0 ->
         {:reply, {:error, "No transactions to rollback"}, state}
 
-      # If there's only one transaction, nothing to do.
       1 ->
         {:reply, {:ok, state}, state}
 
       _ ->
-        # Keep only the first transaction
         first_transaction = List.first(state.transactions)
         new_state = Map.put(state, :transactions, [first_transaction])
         {:reply, {:ok, new_state}, new_state}
@@ -66,7 +64,6 @@ defmodule Database do
   def handle_call(:commit_first, _from, state) do
     case state.transactions do
       [first_transaction | _] ->
-        # Commit only the first transaction
         new_state = %{
           transactions: [],
           database: Map.merge(state.database, first_transaction)
