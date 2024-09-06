@@ -31,9 +31,53 @@ defmodule Database do
     GenServer.call(pid, {:set, key, value})
   end
 
+  def rollback_except_first(pid) do
+    GenServer.call(pid, :rollback_except_first)
+  end
+
+  def commit_first(pid) do
+    GenServer.call(pid, :commit_first)
+  end
+
   @impl true
   def init(state) do
     {:ok, state}
+  end
+
+  @impl true
+  def handle_call(:rollback_except_first, _from, state) do
+    case length(state.transactions) do
+      0 ->
+        {:reply, {:error, "No transactions to rollback"}, state}
+
+      # If there's only one transaction, nothing to do.
+      1 ->
+        {:reply, {:ok, state}, state}
+
+      _ ->
+        # Keep only the first transaction
+        first_transaction = List.first(state.transactions)
+        new_state = Map.put(state, :transactions, [first_transaction])
+        {:reply, {:ok, new_state}, new_state}
+    end
+  end
+
+  @impl true
+  def handle_call(:commit_first, _from, state) do
+    case state.transactions do
+      [first_transaction | _] ->
+        # Commit only the first transaction
+        new_state = %{
+          transactions: [],
+          database: Map.merge(state.database, first_transaction)
+        }
+
+        save_state_to_file(new_state)
+        {:reply, {:ok, new_state}, new_state}
+
+      _ ->
+        {:reply, {:error, "No transaction to commit"}, state}
+    end
   end
 
   @impl true
