@@ -12,12 +12,23 @@ defmodule DesafioCli do
     loop(pid)
   end
 
+  defp handle_exit(pid) do
+    case Database.rollback_except_first(pid) do
+      {:ok, _} ->
+        Database.commit_first(pid)
+        IO.puts("Committed first transaction, rolled back the rest.")
+
+      {:error, reason} ->
+        IO.puts(reason)
+    end
+  end
+
   defp loop(pid) do
     IO.write("> ")
 
     case IO.read(:line) do
       :eof ->
-        :ok
+        handle_exit(pid)
 
       input ->
         result =
